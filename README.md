@@ -1,3 +1,24 @@
+
+# Used dependencies
+## Redux
+library used to hold state globally
+- `npm install redux`
+- `npm install react-redux`
+- `npm install @types/react-redux`
+- `npm install @reduxjs/toolkit`
+- `npm install redux-persist`
+
+
+
+
+
+
+
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

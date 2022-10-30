@@ -4,13 +4,13 @@ import sessionStorage from 'reduxjs-toolkit-persist/lib/storage/session';
 import {persistStore, persistReducer} from 'redux-persist';
 import thunk from "redux-thunk";
 
-const persistConfig = {
+const sessionStoragePersistConfig = {
     key: 'root',
     storage: sessionStorage
 }
 
 const rootReducer = combineReducers({
-    UserSlice: persistReducer(persistConfig, userSlice.reducer)
+    UserSlice: persistReducer(sessionStoragePersistConfig, userSlice.reducer)
 })
 
 

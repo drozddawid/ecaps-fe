@@ -1,12 +1,12 @@
 .login_page {
-    min-width: 450px;
+    min-width: 405px;
     position: relative;
     top: 20vh;
 }
 
 .logo {
     text-align: center;
-    color: white;
+    /*color: white;*/
     /*font-family: "Ubuntu Light";*/
     font-size: xxx-large;
 }
@@ -19,5 +19,8 @@
 }
 
 .sign_in {
-    padding-left: calc(50% - 110px);
+    padding-left: calc(50% - 115px);
+}
+div.haAclf {
+    background-color: #ff0000;
 }

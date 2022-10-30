@@ -11,6 +11,8 @@ import {Provider} from "react-redux";
 import {persistor, store} from "./store/Store";
 import {PersistGate} from "redux-persist/integration/react";
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
+import {getTheme} from "./store/LocalStorage";
+import {GoogleOAuthProvider} from "@react-oauth/google";
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
@@ -18,21 +20,38 @@ const root = ReactDOM.createRoot(
 
 const darkTheme = createTheme({
     palette: {
+        mode: 'dark',
+        primary: {
+            main: '#ffffff',
+        },
+        secondary: {
+            main: '#101010'
+        },
         background: {
-            default: "#232323"
+            paper: '#0e0e0e',
+            default: '#232323',
         },
         text: {
             primary: "#ffffff"
-        },
-        mode: 'dark'
+        }
     }
 });
 const lightTheme = createTheme({
     palette: {
-        background: {
-            default: "#eaeaea"
+        mode: 'dark',
+        primary: {
+            main: '#000000',
         },
-        mode: 'light'
+        secondary: {
+            main: '#000000'
+        },
+        background: {
+            paper: '#000000',
+            default: '#eaeaea',
+        },
+        text: {
+            primary: "#000000"
+        }
     }
 });
 
@@ -40,10 +59,12 @@ root.render(
     <React.StrictMode>
         <Provider store={store}>
             <PersistGate persistor={persistor}>
-                <ThemeProvider theme={window.localStorage.getItem("theme") === "light" ? lightTheme : darkTheme}>
-                    <CssBaseline/>
-                    <App/>
-                </ThemeProvider>
+                <GoogleOAuthProvider clientId="632337224366-bk011vp1s1cnbfmerurvf8lkvf95jdcf.apps.googleusercontent.com">
+                    <ThemeProvider theme={getTheme() === "light" ? lightTheme : darkTheme}>
+                        <CssBaseline enableColorScheme={true}/>
+                        <App/>
+                    </ThemeProvider>
+                </GoogleOAuthProvider>
             </PersistGate>
         </Provider>
     </React.StrictMode>

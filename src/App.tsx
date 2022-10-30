@@ -2,9 +2,10 @@ import "./App.css";
 import React from 'react';
 import {LoginPage} from "./pages/LoginPage";
 import {BrowserRouter, Route, Routes} from "react-router-dom";
-import {HomePage} from "./pages/HomePage";
+import {HomePage} from "./pages/homepage/HomePage";
 import {useSelector} from "react-redux";
 import {RootState} from "./store/Store";
+import {SpacePage} from "./pages/homepage/SpacePage";
 
 declare global {
     let google: any;
@@ -15,12 +16,17 @@ function App() {
     return (
         <div className="app">
             <BrowserRouter>
-                <Routes>
+
                     {isLoggedIn ?
-                        <Route path="/" element={<HomePage/>}/> :
+                        <Routes>
+                        <Route path="/" element={<HomePage/>}/>
+                        <Route path="/spaces/:spaceHash" element={<SpacePage/>}/>
+                        </Routes>
+                        :
+                        <Routes>
                         <Route path="/" element={<LoginPage/>}/>
+                        </Routes>
                     }
-                </Routes>
             </BrowserRouter>
         </div>
     );

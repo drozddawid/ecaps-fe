@@ -5,7 +5,8 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import {HomePage} from "./pages/homepage/HomePage";
 import {useSelector} from "react-redux";
 import {RootState} from "./store/Store";
-import {SpacePage} from "./pages/homepage/SpacePage";
+import {SpacePage} from "./pages/SpacePage";
+import { JoinPage } from "./pages/JoinPage";
 
 declare global {
     let google: any;
@@ -16,17 +17,17 @@ function App() {
     return (
         <div className="app">
             <BrowserRouter>
-
-                    {isLoggedIn ?
-                        <Routes>
+                {isLoggedIn ?
+                    <Routes>
                         <Route path="/" element={<HomePage/>}/>
                         <Route path="/spaces/:spaceHash" element={<SpacePage/>}/>
-                        </Routes>
-                        :
-                        <Routes>
-                        <Route path="/" element={<LoginPage/>}/>
-                        </Routes>
-                    }
+                        <Route path="/join/:invitationHash" element={<JoinPage/>}/>
+                    </Routes>
+                    :
+                    <Routes>
+                        <Route path="/*" element={<LoginPage/>}/>
+                    </Routes>
+                }
             </BrowserRouter>
         </div>
     );

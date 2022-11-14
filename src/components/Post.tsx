@@ -1,12 +1,23 @@
-import {Avatar, Box, Chip, Divider, Paper, Stack, Tooltip, Typography} from "@mui/material";
+import {Avatar, Box, Button, Chip, Container, Divider, Paper, Stack, Tooltip, Typography} from "@mui/material";
 import MuiMarkdown from "mui-markdown";
 import {PostDto} from "../model/PostDto";
+import {PostComments} from "./PostComments";
+import {NewComment} from "./NewComment";
+import React, {useState} from "react";
+import {AddCommentRounded} from "@mui/icons-material";
+import {CommentDto} from "../model/CommentDto";
 
 export const Post =
-    (postInfo: PostDto, editable:boolean) => {
-    //TODO make post not editable if editalbe is false
-        let createdOn = postInfo.createdOn
-        // const overrides = {h1: {component: "h1"}};
+    (props: {
+        postInfo: PostDto,
+        editable: boolean,
+        commentable: boolean
+    }) => {
+        //TODO make post not editable if editalbe is false
+        let createdOn = props.postInfo.createdOn
+        const [commentMode, setCommentMode] = useState(false);
+        const [comments, setComments] = useState<CommentDto[]>([])
+
         return (
             <Paper sx={{mt: 2}}>
                 <Stack
@@ -16,9 +27,9 @@ export const Post =
                     <Stack direction={"row"} sx={{overflowY: "auto", maxHeight: "80px"}}>
                         <Box sx={{p: 1, flexGrow: 1}}>
                             {
-                                postInfo.tags.map((tag) => {
+                                props.postInfo.tags.map((tag) => {
                                     return (
-                                        <Chip key={tag.id} sx={{m: 0.2, p: 0.1}} label={tag.name}/>
+                                        <Chip key={tag.id} sx={{mx: 0.2}} size={"small"} label={tag.name}/>
                                     );
                                 })
                             }
@@ -26,14 +37,17 @@ export const Post =
                         <Box sx={{p: 1}}>
                             <Tooltip title={
                                 <Stack>
-                                    <Typography sx={{mt: 1}} typography={"caption"}>{postInfo.author.email}</Typography>
-                                    <Typography sx={{mt: 1}} typography={"caption"}>{createdOn.replace("T", " ").substring(0, createdOn.lastIndexOf(":"))}</Typography>
+                                    <Typography sx={{mt: 1}}
+                                                typography={"caption"}>{props.postInfo.author.email}</Typography>
+                                    <Typography sx={{mt: 1}}
+                                                typography={"caption"}>{createdOn.replace("T", " ").substring(0, createdOn.lastIndexOf(":"))}</Typography>
                                 </Stack>
                             } placement={"right"}>
                                 <Stack direction={"row"}>
-                                    <Avatar sx={{height: "3vh", width: "3vh", m: 1}} src={postInfo.author.pictureURL}
-                                            alt={postInfo.author.name}/>
-                                    <Typography sx={{mt: 1}} typography={"h7"}>{postInfo.author.name}</Typography>
+                                    <Avatar sx={{height: "20px", width: "20px", m: 1}}
+                                            src={props.postInfo.author.pictureURL}
+                                            alt={props.postInfo.author.name}/>
+                                    <Typography sx={{mt: 1}} typography={"subtitle2"}>{props.postInfo.author.name}</Typography>
                                 </Stack>
                             </Tooltip>
                         </Box>
@@ -47,9 +61,27 @@ export const Post =
                             h5: {component: 'h5'},
                             h6: {component: 'h6'},
                         }}
-                        >{postInfo.content}</MuiMarkdown>
+                        >{props.postInfo.content}</MuiMarkdown>
+                    </Box>
+                    <Box sx={{my: 1}}>
+                        <PostComments postId={props.postInfo.id} comments={comments} setComments={setComments}></PostComments>
+                    </Box>
+                    <Box sx={{mt: 1}}>
+                        <Container maxWidth={"xl"}>
+                            {props.commentable ?
+                                commentMode ?
+                                    <NewComment comments={comments} setComments={setComments} minLines={3} postId={props.postInfo.id}></NewComment>
+                                    :
+                                    <Button startIcon={<AddCommentRounded/>} sx={{m: 0.5}} size={"small"}
+                                            onClick={() => setCommentMode(true)}>Comment</Button>
+                                :
+                                null
+                            }
+                        </Container>
                     </Box>
                 </Stack>
+
+
             </Paper>
         );
     }

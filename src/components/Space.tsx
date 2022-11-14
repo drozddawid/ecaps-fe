@@ -13,9 +13,8 @@ export const Space =
             <Grid item xs={4}>
                 <Tooltip title={props.isActive ? null : "Space is inactive."}>
                     <Paper
-                        onClick={props.isActive ? () => {
+                        onClick={() => {
                             navigate("/spaces/" + props.spaceHash)
-                        } : () => {
                         }}
                         sx={{
                             background: "primary",

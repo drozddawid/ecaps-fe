@@ -1,5 +1,7 @@
 import {store} from "../store/Store"
 import {SpaceInfoDto} from "../model/SpaceInfoDto";
+import {bool} from "yup";
+import {EcapsTag} from "../model/EcapsTag";
 
 export const createSpace = async (spaceName: string): Promise<SpaceInfoDto> => {
     const userToken = store.getState().UserSlice.userToken;
@@ -144,6 +146,39 @@ export const generateNewSpaceInvitationHash = async (spaceId: number): Promise<S
                 throw Error("Space not found.");
             } else {
                 throw Error("Error when trying to create new invitation hash.");
+            }
+        })
+        .then((resp: SpaceInfoDto) => resp)
+};
+
+export const changeSpaceSettings = async (
+    space: {
+        id: number,
+        name: string | undefined,
+        isActive: boolean | undefined,
+        allowedTags: EcapsTag[] | undefined
+    }): Promise<SpaceInfoDto> => {
+    const userToken = store.getState().UserSlice.userToken;
+    const url = `${process.env.REACT_APP_BACKEND_ADDRESS}/spaces/change-settings`;
+
+    const requestOptions = {
+        method: 'PUT',
+        headers: {
+            Authorization: 'Bearer ' + userToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(space)
+    };
+    return await fetch(url, requestOptions)
+        .then((response: Response) => {
+            if (response.ok) {
+                return response.json();
+            } else if (response.status === 404) {
+                throw Error("Space not found.");
+            } else if (response.status === 400) {
+                throw Error("User is not manager of space, so they can't change it's settings.");
+            } else {
+                throw Error("Error when trying to change space settings.");
             }
         })
         .then((resp: SpaceInfoDto) => resp)

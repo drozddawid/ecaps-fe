@@ -30,7 +30,8 @@ export const TagChooser = (
                                 <Chip
                                     key={t.id}
                                     clickable={!props.selectedTags.some(tg => tg.name === tag.name)}
-                                      sx={{m: 0.2, p: 0.1}}
+                                    sx={{mx: 0.2}}
+                                    size={"small"}
                                       label={t.name}
                                       onClick={event => {
                                           if (!props.selectedTags.some(tg => tg.name === tag.name)) props.setSelectedTags(props.selectedTags.concat(t))
@@ -62,7 +63,8 @@ export const TagChooser = (
                                         <Chip
                                             key={t.id}
                                             clickable
-                                              sx={{m: 0.2, p: 0.1}}
+                                            sx={{mx: 0.2}}
+                                            size={"small"}
                                               label={t.name}
                                               onClick={event => props.setSelectedTags(props.selectedTags.filter(tg => tg.name !== t.name))}/>
                                     );

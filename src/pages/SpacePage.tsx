@@ -33,7 +33,7 @@ export const SpacePage = () => {
 
     const fetchMorePosts = () => {
         let postsLen = posts.length;
-        if (spaceInfo == null) return;
+        if (spaceInfo == null || !spaceInfo.isActive) return;
         getSpacePosts(
             {
                 spaceId: spaceInfo?.id || -1,
@@ -68,26 +68,23 @@ export const SpacePage = () => {
         setShowSpaceConfigDialog(true);
     }
 
-    useEffect(() => {
-        console.log("elo" + spaceHash)
-    }, [spaceHash]);
 
     useEffect(() => {
         getSpaceInfo(spaceHash || "noSpaceHash")
             .then((spaceInfo: SpaceInfoDto) => {
-                if(!spaceInfo.isActive){
+                if (!spaceInfo.isActive) {
                     setErrInfo("Space is inactive")
                     setHasMore(false);
-                }else
-                    setSpaceInfo(spaceInfo)
+                }
+                setSpaceInfo(spaceInfo)
             })
             .catch((error: ErrorResponse) => {
-                if(error.status === 404){
+                if (error.status === 404) {
                     setErrInfo("Space doesn't exist.")
-                }else if(error.status === 400){
-                    if(error.message.includes("not member"))
+                } else if (error.status === 400) {
+                    if (error.message.includes("not member"))
                         setErrInfo("You are not member of this space.")
-                    else if(error.message.includes("inactive"))
+                    else if (error.message.includes("inactive"))
                         setErrInfo(error.message)
                 }
                 setHasMore(false);
@@ -96,6 +93,10 @@ export const SpacePage = () => {
     }, [spaceHash]);
 
     useEffect(() => {
+        if (spaceInfo != null && !spaceInfo.isActive) {
+            setErrInfo("Space is inactive")
+            setHasMore(false);
+        }
         fetchMorePosts();
         checkIfUserIsManager();
     }, [spaceInfo]);
@@ -105,7 +106,7 @@ export const SpacePage = () => {
         <div>
             <EcapsBar showMySpaces={true} createPostClickAction={onCreateNewPostButtonClick}
                       spaceSettingsAction={showSpaceConfigButton ? spaceSettingsAction : undefined}/>
-            {!spaceInfo ?
+            {(!spaceInfo || !spaceInfo.isActive) ?
                 <Container maxWidth="lg">
                     <div>
                         <Typography sx={{m: 4, wordBreak: "break-word", textAlign: "center"}} typography={"h4"}>
@@ -144,9 +145,10 @@ export const SpacePage = () => {
                             }}>
                                 {
                                     spaceInfo?.allowedTags
+                                        .sort((a, b) => a.name.localeCompare(b.name))
                                         .map((t) => {
                                             return (
-                                                <Chip key={t.id} clickable sx={{m: 0.2, p: 0.1}} label={t.name}/>
+                                                <Chip key={t.id} clickable sx={{mx: 0.2}} size={"small"} label={t.name}/>
                                             );
                                         })
                                 }
@@ -154,7 +156,7 @@ export const SpacePage = () => {
                             {
                                 posts.map((post: PostDto) => {
                                     return (
-                                        <Post key={post.id} {...post}></Post>
+                                        <Post key={post.id} postInfo={post} editable={true} commentable={true}></Post>
                                     );
                                 })
                             }
@@ -168,7 +170,7 @@ export const SpacePage = () => {
             }
             {spaceInfo && showSpaceConfigDialog &&
                 <SpaceConfigDialog open={showSpaceConfigDialog} setOpen={setShowSpaceConfigDialog}
-                                   spaceInfo={spaceInfo}/>
+                                   spaceInfo={spaceInfo} setSpaceInfo={setSpaceInfo}/>
             }
         </div>
     );

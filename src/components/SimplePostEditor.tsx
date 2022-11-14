@@ -10,9 +10,10 @@ import {EcapsTag} from "../model/EcapsTag";
 import {GoogleAttachment} from "../model/GoogleAttachment";
 import {TagChooser} from "./TagChooser";
 import {createPost} from "../fetch/PostControllerFetches";
+import {PostDto} from "../model/PostDto";
 
 
-const TabPanel = (props: { children?: React.ReactNode, index: number, value: number }) => {
+export const TabPanel = (props: { children?: React.ReactNode, index: number, value: number }) => {
     return (
         <div
             hidden={props.value !== props.index}
@@ -73,6 +74,17 @@ export const SimplePostEditor = (
         }
     }
 
+    const getPostInfo = (): PostDto =>{
+        return {
+            id: 0,
+            author: author,
+            content: content,
+            createdOn: createdOn,
+            tags: selectedTags,
+            googleAttachments: attachments
+        }
+    }
+
 
     return (
         <Box>
@@ -90,8 +102,7 @@ export const SimplePostEditor = (
                                   onChange={(event) => setContent(event.currentTarget.value)}></TextareaAutosize>
             </TabPanel>
             <TabPanel index={1} value={selectedTab}>
-                <Post id={0} content={content} createdOn={createdOn} author={author} tags={selectedTags}
-                      googleAttachments={attachments}/>
+                <Post postInfo={getPostInfo()} editable={false} commentable={false}/>
             </TabPanel>
             <Stack sx={{m: 1}} direction={"row"}><Box sx={{flexGrow: 1}}/><Button onClick={send}>Create
                 post</Button></Stack>

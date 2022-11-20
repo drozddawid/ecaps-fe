@@ -6,7 +6,7 @@ export interface SpaceInfoDto {
     isActive: boolean,
     createdOn: Date,
     hasGoogleDriveConfigured: boolean,
-    googleDriveApiKey: string,
+    googleDriveAccountEmail: string,
     invitationHash: string,
     spaceHash: string,
     allowedTags: EcapsTag[];

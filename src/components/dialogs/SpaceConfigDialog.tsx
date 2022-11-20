@@ -1,12 +1,13 @@
-import {Alert, Box, Button, Container, Dialog, Grid, Paper, Stack, Switch, TextField, Typography} from "@mui/material";
+import {Box, Button, Dialog, Grid, Paper, Stack, TextField, Tooltip, Typography} from "@mui/material";
 import {SpaceInfoDto} from "../../model/SpaceInfoDto";
-import {changeSpaceSettings, generateNewSpaceInvitationHash} from "../../fetch/SpaceControllerFetches";
+import {changeSpaceSettings, ErrorResponse, generateNewSpaceInvitationHash} from "../../fetch/SpaceControllerFetches";
 import React, {useState} from "react";
-import {Form, Formik} from "formik";
-import {TagChooser} from "../TagChooser";
 import {TagAdder} from "../TagAdder";
 import {AlertInfo, AlertStack} from "../AlertStack";
-
+import {CodeResponse, useGoogleLogin} from "@react-oauth/google";
+import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined';
+import {authorizeSpaceGoogleApi} from "../../fetch/UserControllerFetches";
+import HelpCenterIcon from '@mui/icons-material/HelpCenter';
 
 export const SpaceConfigDialog = (
     props: {
@@ -16,7 +17,7 @@ export const SpaceConfigDialog = (
         setSpaceInfo: (spaceInfo: SpaceInfoDto) => void
     }
 ) => {
-    const [spaceInfo, setSpaceInfo] = useState(JSON.parse(JSON.stringify(props.spaceInfo)));
+    const [spaceInfo, setSpaceInfo] = useState<SpaceInfoDto>(JSON.parse(JSON.stringify(props.spaceInfo)));
     const [alerts, setAlerts] = useState<AlertInfo[]>([]);
 
 
@@ -24,8 +25,8 @@ export const SpaceConfigDialog = (
         props.setOpen(false);
     }
     const handleSave = () => {
-        if(spaceInfo.name.length < 1){
-            addAlert({type:"warning", message:"Space name can't be blank."})
+        if (spaceInfo.name.length < 1) {
+            addAlert({type: "warning", message: "Space name can't be blank."})
             return;
         }
         changeSpaceSettings({
@@ -50,9 +51,9 @@ export const SpaceConfigDialog = (
     }
 
     const addAlert = (alert: AlertInfo) => {
-        if(!alerts.some(a => a.type===alert.type && a.message === alert.message)){
+        if (!alerts.some(a => a.type === alert.type && a.message === alert.message)) {
             setAlerts(alerts.concat(alert))
-            setTimeout(() => setAlerts(alerts.filter(a => a.type!==alert.type && a.message !== alert.message)), 3000);
+            setTimeout(() => setAlerts(alerts.filter(a => a.type !== alert.type && a.message !== alert.message)), 5000);
         }
     }
 
@@ -68,7 +69,35 @@ export const SpaceConfigDialog = (
             })
     }
 
+    const authorizeGoogleScope = useGoogleLogin({
+        flow: "auth-code",
+        scope: "https://www.googleapis.com/auth/drive.file",//space delimited
+        select_account: true,
+        onSuccess: codeResponse => handleGoogleScopeAuthorization(codeResponse),
+        onError: errorResponse => {
+            console.log(errorResponse);
+        }
+    })
 
+    const handleGoogleScopeAuthorization = (codeResponse: CodeResponse) => {
+
+        authorizeSpaceGoogleApi(codeResponse, spaceInfo.id)
+            .then((response: string) => {
+                addAlert({type: "success", message: response})
+            })
+            .catch((error: ErrorResponse) => {
+                if (error.status !== 500) {
+                    addAlert({type: "error", message: error.message})
+                }
+                console.log(error);
+
+            })
+
+        console.log(codeResponse)
+    }
+
+
+    const reauthorizingInfo = "Space already has drive account authorized, but you can reauthorize it in case authorization expired. This happens when account haven't been used by application for a long time. If file upload doesn't work, please try reauthorizing account.";
     return (
         <Dialog fullWidth open={props.open}>
             <Paper sx={{flexGrow: 1, padding: 2}}>
@@ -102,6 +131,20 @@ export const SpaceConfigDialog = (
                     <Grid item xs={12}>
                         <TagAdder spaceTags={spaceInfo.allowedTags}
                                   setSpaceTags={(addedTags) => setSpaceInfo({...spaceInfo, allowedTags: addedTags})}/>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Button
+                            sx={{textTransform: "none"}}
+                            onClick={authorizeGoogleScope}
+                            startIcon={<AddToDriveOutlinedIcon/>}>
+                            {spaceInfo.hasGoogleDriveConfigured ? "Reauthorize Google Drive account " + spaceInfo.googleDriveAccountEmail : "Authorize Google Drive account for space"}
+                        </Button>
+                        {spaceInfo.hasGoogleDriveConfigured &&
+                            <Tooltip title={spaceInfo.hasGoogleDriveConfigured ? reauthorizingInfo : null}>
+                                <HelpCenterIcon sx={{p: 0.1}} fontSize={"medium"}></HelpCenterIcon>
+                            </Tooltip>
+                        }
                     </Grid>
 
                 </Grid>

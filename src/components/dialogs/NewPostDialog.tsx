@@ -49,7 +49,7 @@ export const NewPostDialog = (
                         <IconButton
                             edge="end"
                             color="inherit"
-                            onClick={handleClose}
+                            onClick={() => props.setOpen(false)}
                             aria-label="close"
                         >
                             <CloseIcon/>

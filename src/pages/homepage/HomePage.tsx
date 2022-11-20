@@ -7,6 +7,7 @@ import {Space} from "../../components/Space";
 import {NewSpaceDialog} from "../../components/dialogs/NewSpaceDialog";
 import {getUserSpaces} from "../../fetch/SpaceControllerFetches";
 import {SpaceInfoDto} from "../../model/SpaceInfoDto";
+import {CodeResponse, useGoogleLogin} from "@react-oauth/google";
 
 const HomePage = () => {
     const userToken = useSelector((state: RootState) => state.UserSlice.parsedUserToken);

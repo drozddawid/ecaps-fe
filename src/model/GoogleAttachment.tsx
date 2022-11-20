@@ -1,4 +1,4 @@
 export interface GoogleAttachment {
-    id: number,
-    path: string
+    googleDriveId: string,
+    fileName: string
 }

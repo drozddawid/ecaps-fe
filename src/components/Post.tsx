@@ -6,6 +6,7 @@ import {NewComment} from "./NewComment";
 import React, {useState} from "react";
 import {AddCommentRounded} from "@mui/icons-material";
 import {CommentDto} from "../model/CommentDto";
+import {DownloadableGoogleAttachment} from "./DownloadableGoogleAttachment";
 
 export const Post =
     (props: {
@@ -47,7 +48,8 @@ export const Post =
                                     <Avatar sx={{height: "20px", width: "20px", m: 1}}
                                             src={props.postInfo.author.pictureURL}
                                             alt={props.postInfo.author.name}/>
-                                    <Typography sx={{mt: 1}} typography={"subtitle2"}>{props.postInfo.author.name}</Typography>
+                                    <Typography sx={{mt: 1}}
+                                                typography={"subtitle2"}>{props.postInfo.author.name}</Typography>
                                 </Stack>
                             </Tooltip>
                         </Box>
@@ -63,14 +65,26 @@ export const Post =
                         }}
                         >{props.postInfo.content}</MuiMarkdown>
                     </Box>
+                    {
+                        props.postInfo.googleAttachments.length > 0 &&
+                        <Box>
+                            {props.postInfo.googleAttachments.map(attachment => {
+                                return (<DownloadableGoogleAttachment postId={props.postInfo.id} attachment={attachment} isDownloadable={props.commentable}/>);
+                            })}
+                        </Box>
+                    }
                     <Box sx={{my: 1}}>
-                        <PostComments postId={props.postInfo.id} comments={comments} setComments={setComments}></PostComments>
+                        {props.commentable &&
+                            <PostComments postId={props.postInfo.id} comments={comments}
+                                          setComments={setComments}></PostComments>
+                        }
                     </Box>
                     <Box sx={{mt: 1}}>
                         <Container maxWidth={"xl"}>
                             {props.commentable ?
                                 commentMode ?
-                                    <NewComment comments={comments} setComments={setComments} minLines={3} postId={props.postInfo.id}></NewComment>
+                                    <NewComment comments={comments} setComments={setComments} minLines={3}
+                                                postId={props.postInfo.id}></NewComment>
                                     :
                                     <Button startIcon={<AddCommentRounded/>} sx={{m: 0.5}} size={"small"}
                                             onClick={() => setCommentMode(true)}>Comment</Button>

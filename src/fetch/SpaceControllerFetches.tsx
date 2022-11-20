@@ -1,7 +1,12 @@
 import {store} from "../store/Store"
 import {SpaceInfoDto} from "../model/SpaceInfoDto";
-import {bool} from "yup";
 import {EcapsTag} from "../model/EcapsTag";
+import {handleLogout} from "../store/UserSlice";
+import {
+    handleBlobResponseNoLogoutWhenUnauthorized,
+    handleResponseLogoutWhenUnauthorized,
+    handleResponseNoLogoutWhenUnauthorized
+} from "./ResponseHandler";
 
 export const createSpace = async (spaceName: string): Promise<SpaceInfoDto> => {
     const userToken = store.getState().UserSlice.userToken;
@@ -16,13 +21,7 @@ export const createSpace = async (spaceName: string): Promise<SpaceInfoDto> => {
         body: spaceName
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw Error("User not found")
-            }
-        })
+        .then(handleResponseNoLogoutWhenUnauthorized)
         .then((spaceInfo: SpaceInfoDto) => spaceInfo);
 };
 
@@ -38,13 +37,7 @@ export const getUserSpaces = async (): Promise<SpaceInfoDto[]> => {
         }
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw Error("User not found")
-            }
-        })
+        .then(handleResponseLogoutWhenUnauthorized)
         .then((spaceInfo: SpaceInfoDto[]) => spaceInfo);
 };
 
@@ -59,25 +52,13 @@ export const getSpaceInfo = async (spaceHash: string): Promise<SpaceInfoDto> => 
         },
     };
     return await fetch(url, requestOptions)
-        .then(handleResponse)
+        .then(handleResponseNoLogoutWhenUnauthorized)
         .then((spaceInfo: SpaceInfoDto) => spaceInfo);
 };
 
 export interface ErrorResponse {
     status: number,
     message: string
-}
-
-export const handleResponse = async (response: Response) => {
-    if(response.ok){
-        return await response.json();
-    }else{
-        let errorResponse: ErrorResponse = {
-            status: response.status,
-            message: await response.text()
-        }
-        throw errorResponse;
-    }
 }
 
 export const joinSpace = async (invitationHash: string): Promise<SpaceInfoDto> => {
@@ -93,15 +74,7 @@ export const joinSpace = async (invitationHash: string): Promise<SpaceInfoDto> =
         body: invitationHash
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw Error("Space not found.");
-            } else {
-                throw Error("Error when trying to add user to space.");
-            }
-        })
+        .then(handleResponseLogoutWhenUnauthorized)
         .then((resp: SpaceInfoDto) => resp)
 };
 
@@ -116,13 +89,7 @@ export const getSpacesManagedByUser = async (): Promise<SpaceInfoDto[]> => {
         },
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw Error("Error occurred while fetching spaces managed by user.")
-            }
-        })
+        .then(handleResponseNoLogoutWhenUnauthorized)
         .then((spaceInfo: SpaceInfoDto[]) => spaceInfo);
 };
 
@@ -139,15 +106,7 @@ export const generateNewSpaceInvitationHash = async (spaceId: number): Promise<S
         body: JSON.stringify(spaceId)
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw Error("Space not found.");
-            } else {
-                throw Error("Error when trying to create new invitation hash.");
-            }
-        })
+        .then(handleResponseNoLogoutWhenUnauthorized)
         .then((resp: SpaceInfoDto) => resp)
 };
 
@@ -170,16 +129,21 @@ export const changeSpaceSettings = async (
         body: JSON.stringify(space)
     };
     return await fetch(url, requestOptions)
-        .then((response: Response) => {
-            if (response.ok) {
-                return response.json();
-            } else if (response.status === 404) {
-                throw Error("Space not found.");
-            } else if (response.status === 400) {
-                throw Error("User is not manager of space, so they can't change it's settings.");
-            } else {
-                throw Error("Error when trying to change space settings.");
-            }
-        })
+        .then(handleResponseNoLogoutWhenUnauthorized)
         .then((resp: SpaceInfoDto) => resp)
+};
+
+
+export const downloadPostAttachment = async (fileId: string, postId: number): Promise<Blob> => {
+    const userToken = store.getState().UserSlice.userToken;
+    const url = `${process.env.REACT_APP_BACKEND_ADDRESS}/posts/get-file?fileId=` + fileId + "&postId=" + postId;
+
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            Authorization: 'Bearer ' + userToken,
+        },
+    };
+    return await fetch(url, requestOptions)
+        .then(handleBlobResponseNoLogoutWhenUnauthorized)
 };

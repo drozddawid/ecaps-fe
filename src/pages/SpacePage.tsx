@@ -10,6 +10,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import {PostDto} from "../model/PostDto";
 import {SpaceInfoDto} from "../model/SpaceInfoDto";
 import {SpaceConfigDialog} from "../components/dialogs/SpaceConfigDialog";
+import {useSelector} from "react-redux";
+import {RootState} from "../store/Store";
 
 export const SpacePage = () => {
     //todo at the beginning check if user is allowed to see space, otherwise show info that they're not allowed to be here
@@ -21,7 +23,7 @@ export const SpacePage = () => {
     const [showCreatePostDialog, setShowCreatePostDialog] = useState(false);
     const [showSpaceConfigButton, setShowSpaceConfigButton] = useState(false);
     const [showSpaceConfigDialog, setShowSpaceConfigDialog] = useState(false);
-
+    const userEmail = useSelector((root : RootState) => root.UserSlice.parsedUserToken?.email);
 
     let [posts, setPosts] = useState<PostDto[]>([]);
     let [hasMore, setHasMore] = useState(true);
@@ -132,7 +134,8 @@ export const SpacePage = () => {
                     <Container maxWidth="lg">
                         <Stack>
                             <div>
-                                <Typography sx={{wordBreak: "break-word", textAlign: "center"}} typography={"h3"}>
+                                <Typography sx={{wordBreak: "break-word", textAlign: "center"}} typography={"h5" +
+                                    ""}>
                                     {spaceInfo?.name || ""}</Typography>
                             </div>
                             <Box sx={{
@@ -156,7 +159,7 @@ export const SpacePage = () => {
                             {
                                 posts.map((post: PostDto) => {
                                     return (
-                                        <Post key={post.id} postInfo={post} editable={true} commentable={true}></Post>
+                                        <Post key={post.id} postInfo={post} editable={post.author.email === userEmail} commentable={true}></Post>
                                     );
                                 })
                             }

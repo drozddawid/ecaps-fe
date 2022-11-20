@@ -1,5 +1,5 @@
 import {Box, Button, Divider, Stack, Tab, Tabs, TextareaAutosize, Typography} from "@mui/material";
-import React, {SyntheticEvent, useState} from "react";
+import React, {SyntheticEvent, useEffect, useState} from "react";
 import TextArea from "@uiw/react-md-editor/lib/components/TextArea";
 import MuiMarkdown from "mui-markdown";
 import {Post} from "./Post";
@@ -9,8 +9,11 @@ import {EcapsUserDto} from "../model/EcapsUserDto";
 import {EcapsTag} from "../model/EcapsTag";
 import {GoogleAttachment} from "../model/GoogleAttachment";
 import {TagChooser} from "./TagChooser";
-import {createPost} from "../fetch/PostControllerFetches";
+import {createPost, uploadPostAttachment} from "../fetch/PostControllerFetches";
 import {PostDto} from "../model/PostDto";
+import {Form} from "react-router-dom";
+import {useForm} from "react-hook-form";
+import {FileChooser} from "./FileChooser";
 
 
 export const TabPanel = (props: { children?: React.ReactNode, index: number, value: number }) => {
@@ -48,18 +51,31 @@ export const SimplePostEditor = (
     const [content, setContent] = useState("");
     const [selectedTags, setSelectedTags] = useState<EcapsTag[]>([]);
     const [attachments, setAttachments] = useState<GoogleAttachment[]>([]);
-
-
+    const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+    const [isSending, setIsSending] = useState(false);
     let createdOn = new Date(Date.now()).toJSON();
     let send;
     if (props.mode === "newpost") {
         send = () => {
             //TODO check if content and selected tags arent empty, if so - show some <Alert/>
-
+            setIsSending(true);
             createPost({spaceId: props.spaceId, tags: selectedTags, content: content})
-                .then(res => {
+                .then(async res => {
                     //TODO: handle another HTTP RESPONSES LIKE 400
                     console.log(res.id)
+                    if (filesToUpload.length > 0) {
+                        console.log("uploading attachments");
+                        let attachments = new FormData();
+                        filesToUpload.forEach((file) => {
+                            attachments.append("files", file, file.name)
+                        })
+                        await uploadPostAttachment(attachments, res.id)
+                            .then(r => console.log(r))
+                            .catch(e => console.log(e));
+
+                    }
+
+                    setIsSending(false);
                     if (props.onSentPost) {
                         props.onSentPost()
                     }
@@ -74,7 +90,7 @@ export const SimplePostEditor = (
         }
     }
 
-    const getPostInfo = (): PostDto =>{
+    const getPostInfo = (): PostDto => {
         return {
             id: 0,
             author: author,
@@ -84,6 +100,13 @@ export const SimplePostEditor = (
             googleAttachments: attachments
         }
     }
+
+    useEffect(() => {
+        const newAttachments: GoogleAttachment[] = filesToUpload.map((f, i) => {
+            return {googleDriveId: i.toString(), fileName: f.name}
+        })
+        setAttachments(newAttachments);
+    }, [filesToUpload])
 
 
     return (
@@ -100,12 +123,22 @@ export const SimplePostEditor = (
                 <TextareaAutosize style={{flexGrow: 1, flex: 1, width: "100%", height: "100%"}} minRows={props.minLines}
                                   value={content}
                                   onChange={(event) => setContent(event.currentTarget.value)}></TextareaAutosize>
+                <FileChooser files={filesToUpload} setFiles={setFilesToUpload}/>
             </TabPanel>
             <TabPanel index={1} value={selectedTab}>
                 <Post postInfo={getPostInfo()} editable={false} commentable={false}/>
             </TabPanel>
-            <Stack sx={{m: 1}} direction={"row"}><Box sx={{flexGrow: 1}}/><Button onClick={send}>Create
-                post</Button></Stack>
+            <Stack sx={{m: 1}} direction={"row"}><Box sx={{flexGrow: 1}}/>
+                {isSending?
+                    <Button>
+                        Sending...
+                    </Button>
+                    :
+                    <Button onClick={send}>
+                        Create post
+                    </Button>
+                }
+            </Stack>
         </Box>
     );
 }

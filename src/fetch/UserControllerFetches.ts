@@ -17,7 +17,7 @@ export const signUp = async (): Promise<Response> => {
 };
 
 
-export const authorizeSpaceGoogleApi = async (codeResponse: CodeResponse, spaceId: number): Promise<string> => {
+export const authorizeSpaceGoogleApi = async (codeResponse: CodeResponse, spaceId: number): Promise<SpaceInfoDto> => {
     const userToken = store.getState().UserSlice.userToken;
     const url = `${process.env.REACT_APP_BACKEND_ADDRESS}/oauth2/google`;
 
@@ -35,5 +35,5 @@ export const authorizeSpaceGoogleApi = async (codeResponse: CodeResponse, spaceI
     };
     return await fetch(url, requestOptions)
         .then(handleResponseNoLogoutWhenUnauthorized)
-        .then((response: string) => response);
+        .then((response: SpaceInfoDto) => response);
 };

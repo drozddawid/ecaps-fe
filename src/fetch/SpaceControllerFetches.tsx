@@ -1,7 +1,6 @@
 import {store} from "../store/Store"
 import {SpaceInfoDto} from "../model/SpaceInfoDto";
 import {EcapsTag} from "../model/EcapsTag";
-import {handleLogout} from "../store/UserSlice";
 import {
     handleBlobResponseNoLogoutWhenUnauthorized,
     handleResponseLogoutWhenUnauthorized,
@@ -55,11 +54,6 @@ export const getSpaceInfo = async (spaceHash: string): Promise<SpaceInfoDto> => 
         .then(handleResponseNoLogoutWhenUnauthorized)
         .then((spaceInfo: SpaceInfoDto) => spaceInfo);
 };
-
-export interface ErrorResponse {
-    status: number,
-    message: string
-}
 
 export const joinSpace = async (invitationHash: string): Promise<SpaceInfoDto> => {
     const userToken = store.getState().UserSlice.userToken;

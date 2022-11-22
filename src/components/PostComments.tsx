@@ -112,14 +112,14 @@ export const Comment = (
                 <Tooltip title={
                     <Stack>
                         <Typography sx={{mt: 1}} typography={"caption"}>{comment.author.email}</Typography>
-                        <Typography sx={{mt: 1}}
-                                    typography={"caption"}>{comment.createdOn.replace("T", " ").substring(0, comment.createdOn.lastIndexOf(":"))}</Typography>
                     </Stack>
                 } placement={"left"}>
                     <Stack direction={"row"}>
                         <Avatar sx={{height: "20px", width: "20px", mr: 0.5, mt: 0.5}} src={comment.author.pictureURL}
                                 alt={comment.author.name}/>
                         <Typography sx={{mt: 0.5, mb: 0.5}} typography={"subtitle2"}>{comment.author.name}</Typography>
+                        <Box sx={{flexGrow:1}}/>
+                        <Typography sx={{mt: 0.5, mb: 0.5}} typography={"caption"}>{comment.createdOn.replace("T", " ").substring(0, comment.createdOn.lastIndexOf(":"))}</Typography>
                     </Stack>
                 </Tooltip>
                 <Divider/>

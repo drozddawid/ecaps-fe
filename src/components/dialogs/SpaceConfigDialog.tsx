@@ -1,6 +1,6 @@
 import {Box, Button, Dialog, Grid, Paper, Stack, TextField, Tooltip, Typography} from "@mui/material";
 import {SpaceInfoDto} from "../../model/SpaceInfoDto";
-import {changeSpaceSettings, ErrorResponse, generateNewSpaceInvitationHash} from "../../fetch/SpaceControllerFetches";
+import {changeSpaceSettings, generateNewSpaceInvitationHash} from "../../fetch/SpaceControllerFetches";
 import React, {useState} from "react";
 import {TagAdder} from "../TagAdder";
 import {AlertInfo, AlertStack} from "../AlertStack";
@@ -8,6 +8,7 @@ import {CodeResponse, useGoogleLogin} from "@react-oauth/google";
 import AddToDriveOutlinedIcon from '@mui/icons-material/AddToDriveOutlined';
 import {authorizeSpaceGoogleApi} from "../../fetch/UserControllerFetches";
 import HelpCenterIcon from '@mui/icons-material/HelpCenter';
+import {ErrorResponse} from "../../fetch/ResponseHandler";
 
 export const SpaceConfigDialog = (
     props: {
@@ -53,7 +54,7 @@ export const SpaceConfigDialog = (
     const addAlert = (alert: AlertInfo) => {
         if (!alerts.some(a => a.type === alert.type && a.message === alert.message)) {
             setAlerts(alerts.concat(alert))
-            setTimeout(() => setAlerts(alerts.filter(a => a.type !== alert.type && a.message !== alert.message)), 5000);
+            setTimeout(() => setAlerts(alerts.filter(a => a.type !== alert.type && a.message !== alert.message)), 10000);
         }
     }
 
@@ -82,8 +83,10 @@ export const SpaceConfigDialog = (
     const handleGoogleScopeAuthorization = (codeResponse: CodeResponse) => {
 
         authorizeSpaceGoogleApi(codeResponse, spaceInfo.id)
-            .then((response: string) => {
-                addAlert({type: "success", message: response})
+            .then((response: SpaceInfoDto) => {
+                props.setSpaceInfo(response);
+                setSpaceInfo(response);
+                addAlert({type: "success", message: "Authorized Google Drive account successfully."})
             })
             .catch((error: ErrorResponse) => {
                 if (error.status !== 500) {
@@ -134,17 +137,21 @@ export const SpaceConfigDialog = (
                     </Grid>
 
                     <Grid item xs={12}>
-                        <Button
-                            sx={{textTransform: "none"}}
-                            onClick={authorizeGoogleScope}
-                            startIcon={<AddToDriveOutlinedIcon/>}>
-                            {spaceInfo.hasGoogleDriveConfigured ? "Reauthorize Google Drive account " + spaceInfo.googleDriveAccountEmail : "Authorize Google Drive account for space"}
-                        </Button>
-                        {spaceInfo.hasGoogleDriveConfigured &&
-                            <Tooltip title={spaceInfo.hasGoogleDriveConfigured ? reauthorizingInfo : null}>
-                                <HelpCenterIcon sx={{p: 0.1}} fontSize={"medium"}></HelpCenterIcon>
-                            </Tooltip>
-                        }
+                        <Stack direction={"row"}>
+                            <Button
+                                sx={{textTransform: "none"}}
+                                onClick={authorizeGoogleScope}
+                                startIcon={<AddToDriveOutlinedIcon/>}>
+                                {spaceInfo.hasGoogleDriveConfigured ? "Reauthorize Google Drive account " + spaceInfo.googleDriveAccountEmail : "Authorize Google Drive account for space"}
+                            </Button>
+                            {spaceInfo.hasGoogleDriveConfigured &&
+
+                                <Tooltip title={spaceInfo.hasGoogleDriveConfigured ? reauthorizingInfo : null}>
+                                    <HelpCenterIcon sx={{mt: 0.7}} fontSize={"medium"}></HelpCenterIcon>
+                                </Tooltip>
+
+                            }
+                        </Stack>
                     </Grid>
 
                 </Grid>

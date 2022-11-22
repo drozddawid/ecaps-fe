@@ -37,3 +37,8 @@ export const handleBlobResponseNoLogoutWhenUnauthorized = async (response: Respo
         };
     }
 }
+
+export interface ErrorResponse {
+    status: number,
+    message: string
+}

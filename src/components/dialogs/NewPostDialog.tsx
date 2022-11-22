@@ -11,6 +11,7 @@ import {TransitionProps} from '@mui/material/transitions';
 import {Container} from "@mui/material";
 import {SimplePostEditor} from "../SimplePostEditor";
 import {EcapsTag} from "../../model/EcapsTag";
+import {PostDto} from "../../model/PostDto";
 
 const Transition = React.forwardRef(function Transition(
     props: TransitionProps & {
@@ -24,14 +25,16 @@ const Transition = React.forwardRef(function Transition(
 export const NewPostDialog = (
     props: {
         open: boolean,
-        setOpen: React.Dispatch<React.SetStateAction<boolean>>
+        setOpen: React.Dispatch<React.SetStateAction<boolean>>,
         spaceId: number,
-        allowedTags: EcapsTag[]
+        hasGoogleDriveConfigured: boolean,
+        allowedTags: EcapsTag[],
+        addPost: (post:PostDto) => void
     }
 ) => {
-    const handleClose = () => {
+    const handleSentPost = (post: PostDto) => {
+        props.addPost(post);
         props.setOpen(false);
-        window.location.reload();
     };
 
     return (
@@ -57,7 +60,7 @@ export const NewPostDialog = (
                     </Toolbar>
                 </AppBar>
                 <Container maxWidth={"md"}>
-                    <SimplePostEditor spaceId={props.spaceId} minLines={20} allowedTags={props.allowedTags} mode={"newpost"} onSentPost={handleClose}></SimplePostEditor>
+                    <SimplePostEditor hasGoogleDriveConfigured={props.hasGoogleDriveConfigured} spaceId={props.spaceId} minLines={20} allowedTags={props.allowedTags} mode={"newpost"} onSentPost={handleSentPost}></SimplePostEditor>
                 </Container>
             </Dialog>
         </div>

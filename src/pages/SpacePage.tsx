@@ -5,13 +5,15 @@ import {Post} from "../components/Post";
 import {useEffect, useState} from "react";
 import {NewPostDialog} from "../components/dialogs/NewPostDialog";
 import {getSpacePosts} from "../fetch/PostControllerFetches";
-import {ErrorResponse, getSpaceInfo, getSpacesManagedByUser} from "../fetch/SpaceControllerFetches";
+import {getSpaceInfo, getSpacesManagedByUser} from "../fetch/SpaceControllerFetches";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import {PostDto} from "../model/PostDto";
 import {SpaceInfoDto} from "../model/SpaceInfoDto";
 import {SpaceConfigDialog} from "../components/dialogs/SpaceConfigDialog";
 import {useSelector} from "react-redux";
 import {RootState} from "../store/Store";
+import {EditablePost} from "../components/EditablePost";
+import {ErrorResponse} from "../fetch/ResponseHandler";
 
 export const SpacePage = () => {
     //todo at the beginning check if user is allowed to see space, otherwise show info that they're not allowed to be here
@@ -23,7 +25,7 @@ export const SpacePage = () => {
     const [showCreatePostDialog, setShowCreatePostDialog] = useState(false);
     const [showSpaceConfigButton, setShowSpaceConfigButton] = useState(false);
     const [showSpaceConfigDialog, setShowSpaceConfigDialog] = useState(false);
-    const userEmail = useSelector((root : RootState) => root.UserSlice.parsedUserToken?.email);
+    const userEmail = useSelector((root: RootState) => root.UserSlice.parsedUserToken?.email);
 
     let [posts, setPosts] = useState<PostDto[]>([]);
     let [hasMore, setHasMore] = useState(true);
@@ -35,7 +37,7 @@ export const SpacePage = () => {
 
     const fetchMorePosts = () => {
         let postsLen = posts.length;
-        if (spaceInfo == null || !spaceInfo.isActive) return;
+        if (spaceInfo == null || !spaceInfo.isActive || !hasMore) return;
         getSpacePosts(
             {
                 spaceId: spaceInfo?.id || -1,
@@ -151,7 +153,8 @@ export const SpacePage = () => {
                                         .sort((a, b) => a.name.localeCompare(b.name))
                                         .map((t) => {
                                             return (
-                                                <Chip key={t.id} clickable sx={{mx: 0.2}} size={"small"} label={t.name}/>
+                                                <Chip key={t.id} clickable sx={{mx: 0.2}} size={"small"}
+                                                      label={t.name}/>
                                             );
                                         })
                                 }
@@ -159,7 +162,11 @@ export const SpacePage = () => {
                             {
                                 posts.map((post: PostDto) => {
                                     return (
-                                        <Post key={post.id} postInfo={post} editable={post.author.email === userEmail} commentable={true}></Post>
+                                        <EditablePost key={post.id} spaceInfo={spaceInfo} postInfo={post}
+                                                      setPostInfoAfterUpload={(post: PostDto) => setPosts(posts.map(p => p.id === post.id? {...post} : p))}
+                                                      onDelete={(postId: number) => setPosts(posts.filter(p => p.id !== postId))}
+                                                      editable={post.author.email === userEmail}
+                                        />
                                     );
                                 })
                             }
@@ -168,8 +175,14 @@ export const SpacePage = () => {
                 </InfiniteScroll>
             }
             {spaceInfo?.id && spaceInfo.allowedTags &&
-                <NewPostDialog open={showCreatePostDialog} setOpen={setShowCreatePostDialog} spaceId={spaceInfo.id}
-                               allowedTags={spaceInfo.allowedTags}/>
+                <NewPostDialog
+                    hasGoogleDriveConfigured={spaceInfo.hasGoogleDriveConfigured}
+                    open={showCreatePostDialog}
+                    setOpen={setShowCreatePostDialog}
+                    spaceId={spaceInfo.id}
+                    allowedTags={spaceInfo.allowedTags}
+                    addPost={(post: PostDto) => setPosts([post].concat(posts))}
+                />
             }
             {spaceInfo && showSpaceConfigDialog &&
                 <SpaceConfigDialog open={showSpaceConfigDialog} setOpen={setShowSpaceConfigDialog}

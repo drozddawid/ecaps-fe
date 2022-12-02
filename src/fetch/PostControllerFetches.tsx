@@ -1,5 +1,5 @@
 import {store} from "../store/Store"
-import {GetSpacesPostsDto} from "../model/GetSpacesPostsDto";
+import {GetSpacePostsFilteredByTagsDto, GetSpacesPostsDto} from "../model/GetSpacesPostsDto";
 import {PostDto} from "../model/PostDto";
 import {CreatePostDto} from "../model/CreatePostDto";
 import {GetPostCommentsDto} from "../model/GetPostCommentsDto";
@@ -11,6 +11,23 @@ import {UpdatePostDto} from "../model/UpdatePostDto";
 export const getSpacePosts = async (spacesPostDto: GetSpacesPostsDto): Promise<PostDto[]> => {
     const userToken = store.getState().UserSlice.userToken;
     const url = `${process.env.REACT_APP_BACKEND_ADDRESS}/posts/space`;
+
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            Authorization: 'Bearer ' + userToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(spacesPostDto)
+    };
+    return await fetch(url, requestOptions)
+        .then(handleResponseLogoutWhenUnauthorized)
+        .then((posts: PostDto[]) => posts)
+};
+
+export const getSpacePostsFilteredByTags = async (spacesPostDto: GetSpacePostsFilteredByTagsDto): Promise<PostDto[]> => {
+    const userToken = store.getState().UserSlice.userToken;
+    const url = `${process.env.REACT_APP_BACKEND_ADDRESS}/posts/get-by-tags`;
 
     const requestOptions = {
         method: 'POST',

@@ -62,19 +62,19 @@ export const SimplePostEditor = (
             createPost({spaceId: props.spaceId, tags: selectedTags, content: content})
                 .then(async res => {
                     //TODO: handle another HTTP RESPONSES LIKE 400
-                    if (filesToUpload.length > 0) {
+                    if (filesToUpload.length > 0 && props.hasGoogleDriveConfigured) {
                         console.log("uploading attachments");
                         let attachments = new FormData();
                         filesToUpload.forEach((file) => {
                             attachments.append("files", file, file.name)
                         })
                         await uploadPostAttachment(attachments, res.id)
-                            .then(r => console.log(r))
+                            .then(r => props.onSentPost && props.onSentPost(r))
                             .catch(e => console.log(e));
-
+                    } else {
+                        props.onSentPost && props.onSentPost(res)
                     }
                     setIsSending(false);
-                    props.onSentPost && props.onSentPost(res)
                 })
                 .catch(error => console.log(error))
         }
@@ -145,7 +145,7 @@ export const SimplePostEditor = (
                 <Tab label={"Preview"}/>
             </Tabs>
             <TabPanel index={0} value={selectedTab}>
-                <TextareaAutosize style={{width: "100%", height: "100%", marginBottom:0}} minRows={props.minLines}
+                <TextareaAutosize style={{width: "100%", height: "100%", marginBottom: 0}} minRows={props.minLines}
                                   value={content}
                                   onChange={(event) => setContent(event.currentTarget.value)}></TextareaAutosize>
             </TabPanel>

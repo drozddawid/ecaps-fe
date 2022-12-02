@@ -106,7 +106,7 @@ export const Post =
                             </Stack>
                         </Box>
                     </Stack>
-                    <Box sx={{p: 1, wordBreak: "break-word"}}>
+                    <Box sx={{p: 2, wordBreak: "break-word"}}>
                         <MuiMarkdown overrides={{
                             h1: {component: 'h1'},
                             h2: {component: 'h2'},

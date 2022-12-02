@@ -60,17 +60,18 @@ export const PostComments = (
         <Box id={"scrollPaper"} ref={scrollPaper} sx={{spacing: "10", transition: "height 0.3s", height: scrollHeight}}>
             <InfiniteScroll
                 onScroll={e => {
-                    if (fetchedMore) {
+
+                }}
+                height={scrollHeight}
+                next={() => {
+                    if (!fetchedMore) {
                         if (scrollPaper != null && scrollHeight !== "80vh") {
                             scrollToComments();
                             setTimeout(() => setScrollHeight("80vh"), 800);
                         }
                     }
-                }}
-                height={scrollHeight}
-                next={() => {
-                    fetchMoreComments();
                     setFetchedMore(true);
+                    fetchMoreComments()
                 }}
                 hasMore={hasMore}
                 loader={

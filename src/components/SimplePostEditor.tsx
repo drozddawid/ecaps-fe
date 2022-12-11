@@ -1,4 +1,4 @@
-import {Box, Button, Divider, Stack, Tab, Tabs, TextareaAutosize} from "@mui/material";
+import {Alert, Box, Button, Divider, Stack, Tab, Tabs, TextareaAutosize} from "@mui/material";
 import React, {SyntheticEvent, useEffect, useState} from "react";
 import {Post} from "./Post";
 import {useSelector} from "react-redux";
@@ -167,9 +167,12 @@ export const SimplePostEditor = (
                     <>{props.onClose &&
                         <Button onClick={props.onClose}>Close</Button>
                     }
-                        <Button onClick={send}>
+                        <Button onClick={send} disabled={content.length===0 || content.length > 20000}>
                             {props.mode === "editpost" ? "Apply" : "Create post"}
                         </Button></>
+                }
+                {content.length > 65534 &&
+                    <Alert severity={"warning"}>{"Post can't have more than 65500 characters."}</Alert>
                 }
             </Stack>
         </Box>

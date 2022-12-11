@@ -3,7 +3,7 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import React from 'react';
+import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css'
 import App from './App';
@@ -55,19 +55,26 @@ export const lightTheme = createTheme({
 });
 const Index = () => {
     const theme = useSelector((state: RootState) => state.ThemeSlice.theme)
+    const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
     return (
-        <React.StrictMode>
-            <Provider store={store}>
-                <PersistGate persistor={persistor}>
-                    <GoogleOAuthProvider clientId="632337224366-bk011vp1s1cnbfmerurvf8lkvf95jdcf.apps.googleusercontent.com">
-                        <ThemeProvider theme={theme === "light"? lightTheme : darkTheme}>
-                            <CssBaseline enableColorScheme={true}/>
-                            <App/>
-                        </ThemeProvider>
-                    </GoogleOAuthProvider>
-                </PersistGate>
-            </Provider>
-        </React.StrictMode>
+        // <React.StrictMode>
+        //     <Provider store={store}>
+        //         <PersistGate persistor={persistor}>
+        <>{clientId?
+            <GoogleOAuthProvider clientId={clientId}>
+                <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
+                    <CssBaseline enableColorScheme={true}/>
+                    <App/>
+                </ThemeProvider>
+            </GoogleOAuthProvider>
+            :
+            <h1>Google services client id is not configured. Please contact the developer or check your .env properties.</h1>
+        }
+        </>
+        //         </PersistGate>
+        //     </Provider>
+        // </React.StrictMode>
     );
 }
 
@@ -79,9 +86,9 @@ root.render(
     <React.StrictMode>
         <Provider store={store}>
             <PersistGate persistor={persistor}>
-                <GoogleOAuthProvider clientId="632337224366-bk011vp1s1cnbfmerurvf8lkvf95jdcf.apps.googleusercontent.com">
-                    <Index />
-                </GoogleOAuthProvider>
+                {/*<GoogleOAuthProvider clientId="632337224366-bk011vp1s1cnbfmerurvf8lkvf95jdcf.apps.googleusercontent.com">*/}
+                <Index/>
+                {/*</GoogleOAuthProvider>*/}
             </PersistGate>
         </Provider>
     </React.StrictMode>

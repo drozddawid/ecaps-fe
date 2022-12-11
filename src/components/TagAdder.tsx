@@ -1,6 +1,7 @@
 import {Box, Button, Chip, InputAdornment, Stack, TextField, Tooltip, Typography} from "@mui/material";
 import {EcapsTag} from "../model/EcapsTag";
 import React, {useState} from "react";
+import {Delete} from "@mui/icons-material";
 
 
 export const TagAdder = (
@@ -37,7 +38,8 @@ export const TagAdder = (
                                   clickable
                                   sx={{mx: 0.2}} size={"small"}
                                   label={t.name}
-                                  onClick={event => {
+                                  deleteIcon={<Delete/>}
+                                  onDelete={event => {
                                       if (!addedTags.some(et => et.name === t.name)) {
                                           setRemovedTags(removedTags.concat(t))
                                       }

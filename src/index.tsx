@@ -58,9 +58,6 @@ const Index = () => {
     const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
     return (
-        // <React.StrictMode>
-        //     <Provider store={store}>
-        //         <PersistGate persistor={persistor}>
         <>{clientId?
             <GoogleOAuthProvider clientId={clientId}>
                 <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
@@ -72,9 +69,6 @@ const Index = () => {
             <h1>Google services client id is not configured. Please contact the developer or check your .env properties.</h1>
         }
         </>
-        //         </PersistGate>
-        //     </Provider>
-        // </React.StrictMode>
     );
 }
 
@@ -86,9 +80,7 @@ root.render(
     <React.StrictMode>
         <Provider store={store}>
             <PersistGate persistor={persistor}>
-                {/*<GoogleOAuthProvider clientId="632337224366-bk011vp1s1cnbfmerurvf8lkvf95jdcf.apps.googleusercontent.com">*/}
                 <Index/>
-                {/*</GoogleOAuthProvider>*/}
             </PersistGate>
         </Provider>
     </React.StrictMode>

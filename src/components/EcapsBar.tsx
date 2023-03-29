@@ -5,16 +5,18 @@ import {
     Button,
     Container,
     createTheme,
+    Switch,
     ThemeProvider,
     Toolbar,
     Tooltip,
     Typography
 } from "@mui/material";
 import ForumIcon from "@mui/icons-material/Forum";
-import React from "react";
+import React, {useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {handleLogout} from "../store/UserSlice";
 import {getTheme} from "../store/LocalStorage";
+import {setTheme} from "../store/ThemeSlice"
 import {RootState} from "../store/Store";
 import {useNavigate} from "react-router-dom";
 
@@ -46,7 +48,7 @@ const lightTheme = createTheme({
             main: '#000000'
         },
         background: {
-            paper: '#000000',
+            paper: '#9319be',
             default: '#eaeaea',
         },
         text: {
@@ -56,12 +58,16 @@ const lightTheme = createTheme({
 });
 
 export const EcapsBar = (props: {
-    showMySpaces: boolean
-    createSpaceClickAction?:  () => void
+    showMySpaces?: boolean,
+    createSpaceClickAction?: () => void,
+    createPostClickAction?: () => void,
+    spaceSettingsAction?: () => void
 }) => {
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.UserSlice.parsedUserToken);
+    const theme = useSelector((state: RootState) => state.ThemeSlice.theme);
     const navigate = useNavigate();
+
     return (
         <ThemeProvider theme={getTheme() === "light" ? lightTheme : darkTheme}>
             <AppBar position={"static"}>
@@ -92,24 +98,37 @@ export const EcapsBar = (props: {
                             </Tooltip>
                         </Box>
                         {props.showMySpaces &&
-                        <Box>
+                            <Box>
                                 <Button color="secondary" onClick={() => navigate("/")}>My spaces</Button>
-                        </Box>
+                            </Box>
                         }
                         {props.createSpaceClickAction &&
                             <Box>
                                 <Button color="secondary" onClick={props.createSpaceClickAction}>New space</Button>
                             </Box>
                         }
+                        {props.createPostClickAction &&
+                            <Box>
+                                <Button color="secondary" onClick={props.createPostClickAction}>New post</Button>
+                            </Box>
+                        }
+                        {props.spaceSettingsAction &&
+                            <Box>
+                                <Button color="secondary" onClick={props.spaceSettingsAction}>Space settings</Button>
+                            </Box>
+                        }
                         <Box sx={{flexGrow: 1}}/>
                         <Box sx={{mr: 1}}>
-                        <Avatar src={user?.picture} alt={user?.given_name} sx={{width: 33, height: 33}}></Avatar>
+                            <Switch checked={theme !== "light"} onChange={theme === "light"? () => {dispatch(setTheme("dark"))} : () => {dispatch(setTheme("light"))}}></Switch>
                         </Box>
                         <Box sx={{mr: 1}}>
-                        <Typography variant={"subtitle1"}>{user?.name}</Typography>
+                            <Avatar src={user?.picture} alt={user?.given_name} sx={{width: 33, height: 33}}></Avatar>
                         </Box>
                         <Box sx={{mr: 1}}>
-                        <Button color="secondary" onClick={() => dispatch(handleLogout())}>Logout</Button>
+                            <Typography variant={"subtitle1"}>{user?.name}</Typography>
+                        </Box>
+                        <Box sx={{mr: 1}}>
+                            <Button color="secondary" onClick={() => dispatch(handleLogout())}>Logout</Button>
                         </Box>
                     </Toolbar>
                 </Container>

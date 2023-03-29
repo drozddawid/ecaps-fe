@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {JwtToken} from "../auth/Jwt";
+import {JwtToken} from "../model/auth/Jwt";
 import jwt_decode from "jwt-decode";
 
 interface UserState {
